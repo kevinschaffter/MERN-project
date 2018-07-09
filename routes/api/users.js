@@ -5,15 +5,24 @@ const express = require("express"),
   User = require("../../models/User"),
   keys = require("../../config/keys"),
   jwt = require("jsonwebtoken"),
-  passport = require("passport");
+  passport = require("passport"),
+  validateRegisterInput = require("../../validation/register");
 
 router.get("/test", (req, res) => res.json({ msg: "Users Works" }));
 
 router.post("/register", async (req, res) => {
   const { email, name, password } = req.body;
+  const { errors, isValid } = validateRegisterInput(req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  if (validator.isEmpty(DataCue.na)) {
+  }
   const user = await User.findOne({ email });
   if (user) {
-    return res.status(400).json({ email: "Email already exists" });
+    errors.email = "Email already exists";
+    return res.status(400).json({ errors });
   } else {
     const avatar = gravatar.url(email, { s: "200", r: "pg", d: "mm" });
     const newUser = new User({
@@ -60,7 +69,12 @@ router.get(
   "/current",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    res.json({ msg: "Success" });
+    const { id, name, email } = req.user;
+    res.json({
+      id,
+      email,
+      name
+    });
   }
 );
 
