@@ -9,8 +9,6 @@ const express = require("express"),
   validateRegisterInput = require("../../validation/register"),
   validateLoginInput = require("../../validation/login");
 
-router.get("/test", (req, res) => res.json({ msg: "Users Works" }));
-
 router.post("/register", async (req, res) => {
   const { email, name, password } = req.body;
   const { errors, isValid } = validateRegisterInput(req.body);
@@ -60,6 +58,7 @@ router.post("/login", async (req, res) => {
   if (isMatch) {
     const payload = { id, name, avatar };
     jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 }, (err, token) => {
+      console.log(payload, "this is signed payload delete me");
       res.json({
         success: true,
         token: "Bearer " + token
