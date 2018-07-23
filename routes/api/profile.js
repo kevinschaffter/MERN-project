@@ -3,14 +3,15 @@ const express = require("express"),
   mongoose = require("mongoose"),
   passport = require("passport"),
   Profile = require("../../models/Profile"),
-  User = require("../../models/User");
+  User = require("../../models/User"),
+  validateProfileInput = require("../../validation/profile");
 
 // router.get("/test", (req, res) => res.json({ msg: "Profile Works" }));
 
 router.get("/", passport.authenticate("jwt", { session: false }), async (req, res) => {
   const errors = {};
   try {
-    const profile = await Profile.findOne({ user: req.user.id });
+    const profile = await Profile.findOne({ user: req.user.id }).populate("user", ["name", "avatar"]);
     if (!profile) {
       errors.profile = "There is no profile for this user";
       return res.status(404).json(errors);
@@ -22,7 +23,10 @@ router.get("/", passport.authenticate("jwt", { session: false }), async (req, re
 });
 
 router.post("/", passport.authenticate("jwt", { session: false }), async (req, res) => {
-  const errors = {};
+  const { errors, isValid } = validateProfileInput(req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
   try {
     const profileFields = {};
     profileFields.user = req.user.id;

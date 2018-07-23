@@ -58,7 +58,6 @@ router.post("/login", async (req, res) => {
   if (isMatch) {
     const payload = { id, name, avatar };
     jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 }, (err, token) => {
-      console.log(payload, "this is signed payload delete me");
       res.json({
         success: true,
         token: "Bearer " + token
@@ -70,17 +69,13 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get(
-  "/current",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    const { id, name, email } = req.user;
-    res.json({
-      id,
-      email,
-      name
-    });
-  }
-);
+router.get("/current", passport.authenticate("jwt", { session: false }), (req, res) => {
+  const { id, name, email } = req.user;
+  res.json({
+    id,
+    email,
+    name
+  });
+});
 
 module.exports = router;
