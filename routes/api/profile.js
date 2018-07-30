@@ -142,4 +142,38 @@ router.post('/education', passport.authenticate('jwt', { session: false }), asyn
   }
 });
 
+router.delete('/experience/:exp_id', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    let profile = await Profile.findOne({ user: req.user.id });
+    const removeIndex = profile.experience.map(item => item.id).indexOf(req.params.exp_id);
+    profile.experience.splice(removeIndex, 1);
+    await profile.save();
+    res.json(profile);
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.delete('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    await Profile.findOneAndRemove({ user: req.user.id });
+    await User.findOneAndRemove({ _id: req.user.id });
+    res.json({ success: true });
+  } catch (e) {
+    res.json({ success: false });
+  }
+});
+
+router.delete('/education/:edu_id', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    let profile = await Profile.findOne({ user: req.user.id });
+    const removeIndex = profile.education.map(item => item.id).indexOf(req.params.exp_id);
+    profile.education.splice(removeIndex, 1);
+    await profile.save();
+    res.json(profile);
+  } catch (e) {
+    console.log(e);
+  }
+});
+
 module.exports = router;
